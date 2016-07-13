@@ -25,75 +25,42 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
     end
     ```
 
-    iex(8)> Process.register(:wee,self)
-** (FunctionClauseError) no function clause matching in Process.register/2
-    (elixir) lib/process.ex:413: Process.register(:wee, #PID<0.175.0>)
-iex(8)> Process.register(self, :wee)
-true
-iex(9)> Process.send
-send/3          send_after/3
-iex(9)> Process.send_after(:wee,:go,1000)
+## Configuration
 
+With extatic_datadog
 
 ```
-defmodule MyApp.Periodically do
-  use GenServer
-
-  def start_link do
-    GenServer.start_link(__MODULE__, %{})
-  end
-
-  def init(state) do
-    Process.send_after(self(), :work, 2 * 60 * 60 * 1000) # In 2 hours
-    {:ok, state}
-  end
-
-  def handle_info(:work, state) do
-    # Do the work you desire here
-
-    # Start the timer again
-    Process.send_after(self(), :work, 2 * 60 * 60 * 1000) # In 2 hours
-
-    {:noreply, state}
-  end
-end
+ config :extatic, :config,
+ metric_reporter: Extatic.Reporters.Metrics.Datadog,
+ metric_config: %{
+   url: "https://app.datadoghq.com/api/v1/series",
+   api_key: "nope",
+   host: "www.example.com"
+   },
+ event_reporter: Extatic.Reporters.Events.Datadog,
+ event_config: %{
+   url: "https://app.datadoghq.com/api/v1/events",
+   api_key: "nope",
+   host: "www.example.com"
+ }
 ```
-
+or (with extatic_console)
 
 ```
-
-defmodule PlugExometer do
-  @behaviour Plug
-  import Plug.Conn, only: [register_before_send: 2]
-  alias :exometer, as: Exometer
-
-  def init(opts), do: opts
-
-  def call(conn, _config) do
-    before_time = :os.timestamp
-
-    register_before_send conn, fn conn ->
-      after_time = :os.timestamp
-      diff       = :timer.now_diff after_time, before_time
-
-      :ok = Exometer.update [:morgue, :webapp, :resp_time], diff / 1_000
-      :ok = Exometer.update [:morgue, :webapp, :resp_count], 1
-      conn
-    end
-  end
-end
+ config :extatic, :config,
+ metric_reporter: Extatic.Reporters.Metrics.Console,
+ metric_config: %{},
+ event_reporter: Extatic.Reporters.Events.Console,
+ event_config: %{}
 ```
 
-```
-defmodule Morgue.Repo do
-  use Ecto.Repo, otp_app: :my_awesome_app
+or a combination.
 
-  def log(log_entry) do
-    :ok = :exometer.update ~w(my_awesome_webapp ecto query_exec_time)a, (log_entry.query_time + log_entry.queue_time || 0) / 1_000
-    :ok = :exometer.update ~w(my_awesome_webapp ecto query_queue_time)a, (log_entry.queue_time || 0) / 1_000 # Note: You will have to add this to conf/exometer.exs if you want it
-    :ok = :exometer.update ~w(my_awesome_webapp ecto query_count)a, 1
+## Providers
+[Extatic Console](https://github.com/trinode/extatic_console)
 
-    super log_entry
-  end
-end
-```
+Outputs metrics and errors to the console (it's not pretty but helps when implementing monitoring in development
+
+[Extatic Datadog](https://github.com/trinode/extatic_datadog)
+
+Send metrics and errors to datadog
