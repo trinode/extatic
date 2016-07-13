@@ -1,6 +1,9 @@
 # Extatic
 
-**TODO: Add description**
+** WARNING **
+ * There are no tests (yet)
+ * The code is a mess (for now)
+ * Use at your own risk (always)
 
 ## Installation
 
