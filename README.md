@@ -4,6 +4,7 @@
  * There are no tests (yet)
  * The code is a mess (for now)
  * Use at your own risk (always)
+ * The API WILL change
 
 ## Installation
 
