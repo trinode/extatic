@@ -1,5 +1,7 @@
 # Extatic
 
+Delightfully simple metric and error recording with pluggable backends
+
 ** WARNING **
  * There are no tests (yet)
  * The code is a mess (for now)
