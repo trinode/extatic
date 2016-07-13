@@ -153,10 +153,10 @@ defmodule Extatic.Processor do
     {:noreply, state}
   end
 
-  def handle_cast({:record_event, %{type: type, title: title, content: content, level: level}}, state) do
+  def handle_cast({:record_event, %{type: type, title: title, content: content}}, state) do
     {old_value, state} = Map.get_and_update(state, :events, fn current_value ->
 
-    new_event = %Extatic.Models.Event{type: type, title: title, content: content, level: level}
+    new_event = %Extatic.Models.Event{type: type, title: title, content: content}
 
     {current_value, current_value ++ [new_event]}
     end)

@@ -42,7 +42,7 @@ defmodule Extatic do
 
   ### record an event of a given type (eg :deployment, :error, :info) at a given level (eg :error, :warning, :info)
 
-  def record_event(type, title, content, level) do
-     GenServer.cast(Extatic.Processor, {:record_event, %{type: type, title: title, content: content, level: level}})
+  def record_event(type, title, content) do
+     GenServer.cast(Extatic.Processor, {:record_event, %{type: type, title: title, content: content}})
   end
 end
