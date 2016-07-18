@@ -28,6 +28,7 @@ defmodule Extatic.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [{:plug, "~> 1.0"}]
+    [{:plug, "~> 1.0"},
+     {:credo, "~> 0.4", only: [:dev, :test]}]
   end
 end

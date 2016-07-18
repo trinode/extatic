@@ -32,15 +32,12 @@ defmodule Extatic.Processor do
   end
 
   def average_for_timings(items) do
-    IO.inspect items
     items |> Enum.map(fn v ->
             %Metric{name: v.name, value: average_for_list(v.value)}
     end)
   end
 
   def average_for_list(items) do
-    IO.puts "averaging"
-    IO.inspect items
     record_count = Enum.count(items)
     total = Enum.sum(items)
     cond do
@@ -51,7 +48,7 @@ defmodule Extatic.Processor do
 
   def per_time(stats, time) do
     stats |> Enum.map(fn m ->
-            %Metric{name: m.name, value: m.value * 1000000 / time}
+            %Metric{name: m.name, value: m.value * 1_000_000 / time}
     end)
   end
 
@@ -65,9 +62,7 @@ defmodule Extatic.Processor do
     state
   end
 
-  def send_events([]) do
-    IO.puts "No events to send, all is normal, yippie!"
-  end
+  def send_events([]), do: nil
 
   def send_events(events) do
      event_reporter = Application.get_env(:extatic, :config) |> Keyword.get(:event_reporter)
@@ -89,9 +84,7 @@ defmodule Extatic.Processor do
     state
   end
 
-  def send_stats([]) do
-    IO.puts "No Stats to send"
-  end
+  def send_stats([]), do: nil
 
   def send_stats(stats) do
      metric_reporter = Application.get_env(:extatic, :config) |> Keyword.get(:metric_reporter)
@@ -121,7 +114,6 @@ defmodule Extatic.Processor do
     end)
 
     state = Map.put(state, :counters, counters)
-    IO.inspect state
     {:noreply, state}
   end
 
@@ -131,7 +123,7 @@ defmodule Extatic.Processor do
     gauges = Map.put(guages, gauge_name, value)
 
     state = Map.put(state, :gauges, gauges)
-    IO.inspect state
+
     {:noreply, state}
   end
 
@@ -140,7 +132,6 @@ defmodule Extatic.Processor do
     timings = state.timings
 
     {old_value, timings} = Map.get_and_update(timings, name, fn current_value ->
-      IO.puts current_value
       new_list = case current_value do
         nil -> [value]
         _ -> current_value ++ [value]
@@ -149,7 +140,7 @@ defmodule Extatic.Processor do
     end)
 
     state = Map.put(state, :timings, timings)
-    IO.inspect state
+    
     {:noreply, state}
   end
 
@@ -172,7 +163,7 @@ defmodule Extatic.Processor do
 
   def init(:ok) do
     Process.send_after(self(), :send, 1 * 1000) # In 2 hours
-    state = %{counters: %{}, gauges: %{}, timings: %{}, events: [] } |> set_last_sent
+    state = %{counters: %{}, gauges: %{}, timings: %{}, events: []} |> set_last_sent
     {:ok, state}
   end
 
@@ -180,7 +171,6 @@ defmodule Extatic.Processor do
     state = push_stats(state)
     state = push_events(state)
     Process.send_after(self(), :send, 10 * 1000)
-    IO.puts "Processing...."
     {:noreply, state}
   end
 
