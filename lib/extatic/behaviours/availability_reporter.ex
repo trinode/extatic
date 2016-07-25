@@ -1,3 +1,3 @@
 defmodule Extatic.Behaviours.AvailabilityReporter do
-  @callback send() :: any
+  @callback send(List.t) :: any
 end
