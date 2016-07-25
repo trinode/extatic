@@ -4,7 +4,9 @@ use Mix.Config
 
 config :extatic, :config,
   event_reporter: nil,
-  metric_reporter: nil
+  metric_reporter: nil,
+  availability_reporter: nil
+
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this

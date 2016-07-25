@@ -97,6 +97,14 @@ defmodule Extatic.Processor do
     Application.get_env(:extatic, :config) |> Keyword.get(:metric_reporter)
   end
 
+  def send_availability do
+     if availability_reporter, do: availability_reporter.send
+  end
+
+  def availability_reporter do
+    Application.get_env(:extatic, :config) |> Keyword.get(:availability_reporter)
+  end
+
   def reset_stats(state) do
     state |> Map.put(:counters, %{})
           |> Map.put(:gauges, %{})
@@ -170,6 +178,7 @@ defmodule Extatic.Processor do
   def startup_log do
      unless event_reporter, do: IO.puts "Extatic Event Reporter not configured!"
      unless metric_reporter, do: IO.puts "Extatic Metric Reporter not configured!"
+     unless availability_reporter, do: IO.puts "Extatic Availability Reporter not configured!"
   end
 
   def init(:ok) do
@@ -180,10 +189,10 @@ defmodule Extatic.Processor do
   end
 
   def handle_info(:send, state) do
+    send_availability
     state = push_stats(state)
     state = push_events(state)
     Process.send_after(self(), :send, 10 * 1000)
     {:noreply, state}
   end
-
 end
