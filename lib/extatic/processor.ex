@@ -65,8 +65,11 @@ defmodule Extatic.Processor do
   def send_events([]), do: nil
 
   def send_events(events) do
-     event_reporter = Application.get_env(:extatic, :config) |> Keyword.get(:event_reporter)
-     event_reporter.send(events)
+    if event_reporter, do: event_reporter.send(events)
+  end
+
+  def event_reporter do
+    Application.get_env(:extatic, :config) |> Keyword.get(:event_reporter)
   end
 
   def reset_events(state) do
@@ -87,8 +90,11 @@ defmodule Extatic.Processor do
   def send_stats([]), do: nil
 
   def send_stats(stats) do
-     metric_reporter = Application.get_env(:extatic, :config) |> Keyword.get(:metric_reporter)
-     metric_reporter.send(stats)
+     if metric_reporter, do: metric_reporter.send(stats)
+  end
+
+  def metric_reporter do
+    Application.get_env(:extatic, :config) |> Keyword.get(:metric_reporter)
   end
 
   def reset_stats(state) do
@@ -140,7 +146,7 @@ defmodule Extatic.Processor do
     end)
 
     state = Map.put(state, :timings, timings)
-    
+
     {:noreply, state}
   end
 
@@ -161,8 +167,14 @@ defmodule Extatic.Processor do
 
   ## Server Callbacks
 
+  def startup_log do
+     unless event_reporter, do: IO.puts "Extatic Event Reporter not configured!"
+     unless metric_reporter, do: IO.puts "Extatic Metric Reporter not configured!"
+  end
+
   def init(:ok) do
-    Process.send_after(self(), :send, 1 * 1000) # In 2 hours
+    startup_log
+    Process.send_after(self(), :send, 1 * 1000)
     state = %{counters: %{}, gauges: %{}, timings: %{}, events: []} |> set_last_sent
     {:ok, state}
   end
