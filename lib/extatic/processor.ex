@@ -98,7 +98,7 @@ defmodule Extatic.Processor do
   end
 
   def send_availability do
-     if availability_reporter, do: availability_reporter.send
+     if availability_reporter, do: availability_reporter.send([])
   end
 
   def availability_reporter do
