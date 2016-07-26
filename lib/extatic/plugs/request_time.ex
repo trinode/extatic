@@ -1,4 +1,4 @@
-defmodule Extatic.RequestTime do
+defmodule Extatic.Plugs.RequestTime do
   @behaviour Plug
   import Plug.Conn, only: [register_before_send: 2]
 
