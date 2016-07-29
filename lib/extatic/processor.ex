@@ -1,11 +1,7 @@
 defmodule Extatic.Processor do
   use GenServer
   alias Extatic.Models.Metric
-  ## Client API
 
-  @doc """
-  Starts the registry.
-  """
   def start_link(name) do
      GenServer.start_link(__MODULE__, :ok, name: name)
   end
@@ -145,7 +141,7 @@ defmodule Extatic.Processor do
   def handle_cast({:record_timing, %{timing_name: name, value: value}}, state) do
     timings = state.timings
 
-    {old_value, timings} = Map.get_and_update(timings, name, fn current_value ->
+    {_old_value, timings} = Map.get_and_update(timings, name, fn current_value ->
       new_list = case current_value do
         nil -> [value]
         _ -> current_value ++ [value]
@@ -159,7 +155,7 @@ defmodule Extatic.Processor do
   end
 
   def handle_cast({:record_event, %{type: type, title: title, content: content}}, state) do
-    {old_value, state} = Map.get_and_update(state, :events, fn current_value ->
+    {_old_value, state} = Map.get_and_update(state, :events, fn current_value ->
 
     new_event = %Extatic.Models.Event{type: type, title: title, content: content}
 

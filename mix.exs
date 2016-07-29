@@ -7,6 +7,8 @@ defmodule Extatic.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
+     description: description(),
+     package: package(),
      deps: deps()]
   end
 
@@ -30,5 +32,22 @@ defmodule Extatic.Mixfile do
   defp deps do
     [{:plug, "~> 1.0"},
      {:credo, "~> 0.4", only: [:dev, :test]}]
+  end
+
+  defp description do
+    """
+    A library to interface with monitoring services and loggers via plugins, allowing you to switch providers with
+    minimal rework your app.
+    """
+  end
+
+  defp package do
+     [
+       name: :extatic,
+       files: ["lib", "mix.exs", "README*", "LICENSE*"],
+       maintainers: ["Anthony Graham"],
+       licenses: ["Apache 2.0"],
+       links: %{"GitHub" => "https://github.com/trinode/extatic"}
+     ]
   end
 end
