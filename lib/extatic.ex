@@ -25,24 +25,24 @@ defmodule Extatic do
   ### Increment a counter (eg visit count) (initialising if necessary)
 
   def increment_counter(counter_name) do
-    GenServer.cast(Extatic.Processor, {:increment_counter, counter_name})
+    GenServer.cast(Extatic.MetricProcessor, {:increment_counter, counter_name})
   end
 
   ### set a guage (eg memory usage) (initialising if necessary)
 
   def set_guage(gauge_name, value) do
-    GenServer.cast(Extatic.Processor, {:set_gauge, %{gauge: gauge_name, value: value}})
+    GenServer.cast(Extatic.MetricProcessor, {:set_gauge, %{gauge: gauge_name, value: value}})
   end
 
   ### record a timing (eg a single web request, or a background process run time)
 
   def record_timing(name, value) do
-    GenServer.cast(Extatic.Processor, {:record_timing, %{timing_name: name, value: value}})
+    GenServer.cast(Extatic.MetricProcessor, {:record_timing, %{timing_name: name, value: value}})
   end
 
   ### record an event of a given type (eg :deployment, :error, :info) at a given level (eg :error, :warning, :info)
 
   def record_event(type, title, content) do
-     GenServer.cast(Extatic.Processor, {:record_event, %{type: type, title: title, content: content}})
+     GenServer.cast(Extatic.EventProcessor, {:record_event, %{type: type, title: title, content: content}})
   end
 end

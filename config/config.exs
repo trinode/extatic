@@ -2,10 +2,25 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :extatic, :config,
-  event_reporter: nil,
-  metric_reporter: nil,
-  availability_reporter: nil
+config :extatic, :events, %{
+  reporter: nil,
+  interval: 5,
+  config: %{}
+}
+
+config :extatic, :metrics, %{
+  reporter: nil,
+  interval: 10,
+  config: %{}
+
+}
+
+config :extatic, :availability, %{
+  reporter: nil,
+  interval: 5,
+  config: %{}
+}
+
 
 
 # This configuration is loaded before any dependency and is restricted
