@@ -8,7 +8,7 @@ defmodule Extatic.Supervisor do
   def init(:ok) do
      children = [
        worker(Extatic.MetricProcessor, [Extatic.MetricProcessor]),
-       worker(Extatic.EventProcessor, [Extatic.EventProcessor])
+       worker(Extatic.EventProcessor, [Extatic.EventProcessor]),
        worker(Extatic.AvailabilityProcessor, [Extatic.AvailabilityProcessor])
      ]
 

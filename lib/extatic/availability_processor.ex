@@ -1,14 +1,16 @@
 defmodule Extatic.AvailabilityProcessor do
   use GenServer
-  alias Extatic.Models.Metric
 
+  def start_link(name) do
+     GenServer.start_link(__MODULE__, :ok, name: name)
+  end
 
   def send_availability do
      if availability_reporter, do: availability_reporter.send([])
   end
 
   def availability_reporter do
-    Application.get_env(:extatic, :availability) |> Keyword.get(:reporter)
+    get_config |> Map.get(:reporter)
   end
 
   def handle_cast(request, state) do
@@ -23,7 +25,7 @@ defmodule Extatic.AvailabilityProcessor do
 
   def init(:ok) do
     startup_log
-    Process.send_after(self(), :send, 1 * 1000)
+    if availability_reporter, do: Process.send_after(self(), :send, 1 * 1000)
     state = %{config: get_plugin_config} |> set_last_sent
     {:ok, state}
   end
@@ -57,7 +59,7 @@ defmodule Extatic.AvailabilityProcessor do
   def configured_interval(interval), do: interval
 
   def get_config do
-     Application.get_env(:extatic, :metrics)
+     get_config Application.get_env(:extatic, :metrics)
   end
 
   def get_config(config = %{}), do: config

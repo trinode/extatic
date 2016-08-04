@@ -27,7 +27,7 @@ defmodule Extatic.EventProcessor do
   end
 
   def event_reporter do
-    Application.get_env(:extatic, :events) |> Map.get(:reporter)
+    get_config |> Map.get(:reporter)
   end
 
   def reset_events(state) do
@@ -61,7 +61,7 @@ defmodule Extatic.EventProcessor do
 
   def init(:ok) do
     startup_log
-    queue_processing(1)
+    if event_reporter, do: queue_processing(1)
     state = %{events: [], config: get_plugin_config} |> set_last_sent
     {:ok, state}
   end
@@ -90,7 +90,7 @@ defmodule Extatic.EventProcessor do
   def configured_interval(interval), do: interval
 
   def get_config do
-     Application.get_env(:extatic, :metrics)
+     get_config Application.get_env(:extatic, :events)
   end
 
   def get_config(config = %{}), do: config

@@ -55,6 +55,7 @@ defmodule Extatic.MetricProcessor do
     end_at = state.last_sent
 
     stat_list =  group_stats(snapshot,start_at, end_at)
+    IO.puts stat_list
     send_stats(stat_list)
     state
   end
@@ -66,7 +67,7 @@ defmodule Extatic.MetricProcessor do
   end
 
   def metric_reporter do
-    Application.get_env(:extatic, :metrics) |> Map.get(:reporter)
+    get_config |> Map.get(:reporter)
   end
 
   def reset_stats(state) do
@@ -133,9 +134,8 @@ defmodule Extatic.MetricProcessor do
   end
 
   def init(:ok) do
-    IO.puts "init"
     startup_log
-    Process.send_after(self(), :send, 1 * 1000)
+    if metric_reporter, do: Process.send_after(self(), :send, 1 * 1000)
     state = %{counters: %{}, gauges: %{}, timings: %{}, config: get_plugin_config} |> set_last_sent
     {:ok, state}
   end
@@ -143,7 +143,6 @@ defmodule Extatic.MetricProcessor do
   def handle_info(:send, state) do
     state = push_stats(state)
     queue_processing()
-    IO.puts "send"
     {:noreply, state}
   end
 
@@ -165,7 +164,7 @@ defmodule Extatic.MetricProcessor do
   def configured_interval(interval), do: interval
 
   def get_config do
-     Application.get_env(:extatic, :metrics)
+     get_config Application.get_env(:extatic, :metrics)
   end
 
   def get_config(config = %{}), do: config
