@@ -5,8 +5,8 @@ defmodule Extatic.AvailabilityProcessor do
      GenServer.start_link(__MODULE__, :ok, name: name)
   end
 
-  def send_availability do
-     if availability_reporter, do: availability_reporter.send([])
+  def send_availability(state) do
+     if availability_reporter, do: availability_reporter.send(state)
   end
 
   def availability_reporter do
@@ -45,7 +45,7 @@ defmodule Extatic.AvailabilityProcessor do
 
 
   def handle_info(:send, state) do
-    send_availability
+    send_availability(state)
     queue_processing
     {:noreply, state}
   end
@@ -59,7 +59,7 @@ defmodule Extatic.AvailabilityProcessor do
   def configured_interval(interval), do: interval
 
   def get_config do
-     get_config Application.get_env(:extatic, :metrics)
+     get_config Application.get_env(:extatic, :availability)
   end
 
   def get_config(config = %{}), do: config

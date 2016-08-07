@@ -55,12 +55,11 @@ defmodule Extatic.MetricProcessor do
     end_at = state.last_sent
 
     stat_list =  group_stats(snapshot,start_at, end_at)
-    IO.puts stat_list
-    send_stats(stat_list)
+    send_stats(%{metrics: stat_list, config: state.config})
     state
   end
 
-  def send_stats([]), do: nil
+  def send_stats(%{config: []}), do: nil
 
   def send_stats(stats) do
      if metric_reporter, do: metric_reporter.send(stats)
