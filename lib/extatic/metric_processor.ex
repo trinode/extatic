@@ -1,4 +1,4 @@
-defmodule Extatic.Processor do
+defmodule Extatic.MetricProcessor do
   use GenServer
   alias Extatic.Models.Metric
 
@@ -48,30 +48,6 @@ defmodule Extatic.Processor do
     end)
   end
 
-
-
-  def push_events(state) do
-    # rather lose events than send them forever in case of weirdness
-    snapshot = state
-    state = reset_events(state)
-    send_events(snapshot)
-    state
-  end
-
-  def send_events([]), do: nil
-
-  def send_events(events) do
-    if event_reporter, do: event_reporter.send(events)
-  end
-
-  def event_reporter do
-    Application.get_env(:extatic, :config) |> Keyword.get(:event_reporter)
-  end
-
-  def reset_events(state) do
-    state |> Map.put(:events, [])
-  end
-
   def push_stats(state) do
     snapshot = state
     start_at = state.last_sent
@@ -79,6 +55,7 @@ defmodule Extatic.Processor do
     end_at = state.last_sent
 
     stat_list =  group_stats(snapshot,start_at, end_at)
+    IO.puts stat_list
     send_stats(stat_list)
     state
   end
@@ -90,15 +67,7 @@ defmodule Extatic.Processor do
   end
 
   def metric_reporter do
-    Application.get_env(:extatic, :config) |> Keyword.get(:metric_reporter)
-  end
-
-  def send_availability do
-     if availability_reporter, do: availability_reporter.send([])
-  end
-
-  def availability_reporter do
-    Application.get_env(:extatic, :config) |> Keyword.get(:availability_reporter)
+    get_config |> Map.get(:reporter)
   end
 
   def reset_stats(state) do
@@ -154,17 +123,6 @@ defmodule Extatic.Processor do
     {:noreply, state}
   end
 
-  def handle_cast({:record_event, %{type: type, title: title, content: content}}, state) do
-    {_old_value, state} = Map.get_and_update(state, :events, fn current_value ->
-
-    new_event = %Extatic.Models.Event{type: type, title: title, content: content}
-
-    {current_value, current_value ++ [new_event]}
-    end)
-
-    {:noreply, state}
-  end
-
   def handle_cast(request, state) do
     super(request, state)
   end
@@ -172,23 +130,53 @@ defmodule Extatic.Processor do
   ## Server Callbacks
 
   def startup_log do
-     unless event_reporter, do: IO.puts "Extatic Event Reporter not configured!"
      unless metric_reporter, do: IO.puts "Extatic Metric Reporter not configured!"
-     unless availability_reporter, do: IO.puts "Extatic Availability Reporter not configured!"
   end
 
   def init(:ok) do
     startup_log
-    Process.send_after(self(), :send, 1 * 1000)
-    state = %{counters: %{}, gauges: %{}, timings: %{}, events: []} |> set_last_sent
+    if metric_reporter, do: Process.send_after(self(), :send, 1 * 1000)
+    state = %{counters: %{}, gauges: %{}, timings: %{}, config: get_plugin_config} |> set_last_sent
     {:ok, state}
   end
 
   def handle_info(:send, state) do
-    send_availability
     state = push_stats(state)
-    state = push_events(state)
-    Process.send_after(self(), :send, 10 * 1000)
+    queue_processing()
     {:noreply, state}
+  end
+
+  def queue_processing() do
+    queue_processing(configured_interval)
+  end
+
+  def queue_processing(0) do end
+  def queue_processing(interval) do
+    Process.send_after(self(), :send, interval * 1000)
+  end
+
+  def configured_interval do
+    configured_interval(Map.get(get_config,:interval))
+  end
+  def configured_interval(nil) do
+    %{}
+  end
+  def configured_interval(interval), do: interval
+
+  def get_config do
+     get_config Application.get_env(:extatic, :metrics)
+  end
+
+  def get_config(config = %{}), do: config
+  def get_config(nil) do
+    %{}
+  end
+
+  def get_plugin_config do
+    get_plugin_config(Map.get(get_config,:config))
+  end
+  def get_plugin_config(config = %{}), do: config
+  def get_plugin_config(nil) do
+    %{}
   end
 end

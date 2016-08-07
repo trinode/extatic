@@ -7,7 +7,9 @@ defmodule Extatic.Supervisor do
 
   def init(:ok) do
      children = [
-       worker(Extatic.Processor, [Extatic.Processor])
+       worker(Extatic.MetricProcessor, [Extatic.MetricProcessor]),
+       worker(Extatic.EventProcessor, [Extatic.EventProcessor]),
+       worker(Extatic.AvailabilityProcessor, [Extatic.AvailabilityProcessor])
      ]
 
     supervise(children, strategy: :one_for_one)

@@ -16,7 +16,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
     ```elixir
     def deps do
-      [{:extatic, "~> 0.1.0"}]
+      [{:extatic, "~> 0.2.0"}]
     end
     ```
 
@@ -33,28 +33,39 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 With extatic_datadog
 
 ```
- config :extatic, :config,
- metric_reporter: Extatic.Reporters.Metrics.Datadog,
- metric_config: %{
+ config :extatic, :metrics, %{
+ reporter: Extatic.Reporters.Metrics.Datadog,
+ interval: 10,
+ config: %{
    url: "https://app.datadoghq.com/api/v1/series",
    api_key: "nope",
    host: "www.example.com"
-   },
- event_reporter: Extatic.Reporters.Events.Datadog,
- event_config: %{
-   url: "https://app.datadoghq.com/api/v1/events",
-   api_key: "nope",
-   host: "www.example.com"
+   }
+ }
+
+ config :extatic, :events, %{
+   reporter: Extatic.Reporters.Events.Datadog,
+   interval: 10,
+   config: %{
+     url: "https://app.datadoghq.com/api/v1/events",
+     api_key: "nope",
+     host: "www.example.com"
+   }
  }
 ```
 or (with extatic_console)
 
 ```
- config :extatic, :config,
- metric_reporter: Extatic.Reporters.Metrics.Console,
- metric_config: %{},
- event_reporter: Extatic.Reporters.Events.Console,
- event_config: %{}
+ config :extatic, :metrics, %{
+   reporter: Extatic.Reporters.Metrics.Console,
+   interval: 10,
+   config: %{}
+ }
+ config :extatic, :events, %{
+   reporter: Extatic.Reporters.Events.Console,
+   interval: 10,
+   config: %{}
+ }
 ```
 
 or a combination.
