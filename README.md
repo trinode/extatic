@@ -14,7 +14,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
   1. Add `extatic` to your list of dependencies in `mix.exs`:
 
-    ```elixir
+    ```ruby
     def deps do
       [{:extatic, "~> 0.2.0"}]
     end
@@ -22,7 +22,7 @@ If [available in Hex](https://hex.pm/docs/publish), the package can be installed
 
   2. Ensure `extatic` is started before your application:
 
-    ```elixir
+    ``` elixir
     def application do
       [applications: [:extatic]]
     end
